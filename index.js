@@ -1,13 +1,13 @@
 const express = require("express")
 const { json } = require("express/lib/response")
 const { default: mongoose } = require("mongoose")
+const User = require("./models/User")
 const app = express()
 app.use(express.json())
-const user = require('./models/User')
 const router = express.Router()
 
 
-mongoose.connect("mongodb://127.0.0.1/testdb", { useUnifiedTopology: true, useNewUrlParser: true })
+mongoose.connect("mongodb://127.0.0.1/newtestdb", { useUnifiedTopology: true, useNewUrlParser: true })
 
 const connection = mongoose.connection;
 
@@ -21,14 +21,19 @@ app.listen(3000, ()=> console.log("listening on 3000"))
 
 router.route("/register").post(function(req,res) {
       
-  user.create(req.body, function(err, result) {
-      
-      
+
+  let newUser = new User();
+  newUser.userName= req.body.userName,
+  newUser.setPassword(req.body.password)
+  
+
+
+  newUser.save( (err) =>  {
       
       if (err) {
         res.send(err);
       } else {
-        res.send(result);
+        res.send(newUser);
       }
     });
    
