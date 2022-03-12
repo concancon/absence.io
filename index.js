@@ -19,6 +19,33 @@ app.use("/", router)
 app.listen(3000, ()=> console.log("listening on 3000"))
 
 
+// User login api
+router.post('/login', (req, res) => {
+  
+  // Find user with requested email
+  User.findOne({ userName : req.body.userName }, function(err, user) {
+      if (user === null) {
+          return res.status(400).send({
+              message : "User not found."
+          });
+      }
+      else {
+          if (user.validPassword(req.body.password)) {
+              return res.status(201).send({
+                  message : "User Logged In",
+              })
+          }
+          else {
+              return res.status(400).send({
+                  message : "Wrong Password"
+              });
+          }
+      }
+  });
+});
+
+
+
 router.route("/register").post(function(req,res) {
       
 
