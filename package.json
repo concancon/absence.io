@@ -9,6 +9,9 @@
   "author": "Camilo Ocampo",
   "license": "ISC",
   "dependencies": {
-    "express": "^4.17.3"
+    "express": "^4.17.3",
+    "mongoose": "^6.2.6",
+    "mongoose-unique-validator": "^3.0.0",
+    "nodemon": "^2.0.15"
   }
 }
