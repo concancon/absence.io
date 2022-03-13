@@ -31,28 +31,27 @@ app.listen(3000, ()=> console.log("listening on 3000"))
 
 
 // User login api
-router.post('/login', (req, res) => {
+router.post('/login', async function(req, res, next) {
   
-  // Find user with requested email
-  User.findOne({ userName : req.body.userName }, function(err, user) {
-      if (user === null) {
-          return res.status(400).send({
-              message : "User not found."
-          });
-      }
-      else {
-          if (user.validPassword(req.body.password)) {
-              return res.status(201).send({
-                  message : "User Logged In",
-              })
-          }
-          else {
-              return res.status(400).send({
-                  message : "Wrong Password"
-              });
-          }
-      }
-  });
+  try {
+    const { userName, password } = req.body;
+    const user = await User.findOne({ userName });
+    if (!user) return next(new Error('Username does not exist'));
+    const validPassword = await validatePassword(password, user.password);
+    if (!validPassword) return next(new Error('Password is not correct'))
+    const accessToken = jwt.sign({ userId: user._id }, "ThisIsAnIncredibleSecret", {
+     expiresIn: "1d"
+    });
+    await User.findByIdAndUpdate(user._id, { accessToken })
+    res.status(200).json({
+     data: { userName: user.email, role: user.role },
+     accessToken
+    })
+   } catch (error) {
+    next(error);
+   }
+  
+
 });
 
 
@@ -62,14 +61,14 @@ router.route("/register").post( async function(req,res, next) {
 
     const {userName, password, role} = req.body;
     const hashedPassword = await hashPassword(password)
-    const newUser = User({userName, password: hashedPassword, role: role || "guest"})
+    const newUser = new User({userName, password: hashedPassword, role: role || "guest"})
     const accessToken = jwt.sign({userId: newUser._id}, "ThisIsAnIncredibleSecret", {
       expiresIn: "1d"
     })
     newUser.accessToken = accessToken
 
     await newUser.save()
-    res.json({data: newUser,
+    res.json({data: newUser, password: newUser.password,
     accessToken} 
     )} catch(error){
       next(error)
