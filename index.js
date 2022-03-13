@@ -1,10 +1,21 @@
 const express = require("express")
+const jwt = require('jsonwebtoken');
 const { json } = require("express/lib/response")
 const { default: mongoose } = require("mongoose")
 const User = require("./models/User")
 const app = express()
 app.use(express.json())
 const router = express.Router()
+const bcrypt= require("bcrypt")
+
+
+async function hashPassword(password) {
+  return await bcrypt.hash(password, 10);
+ }
+  
+ async function validatePassword(plainPassword, hashedPassword) {
+  return await bcrypt.compare(plainPassword, hashedPassword);
+ }
 
 
 mongoose.connect("mongodb://127.0.0.1/newtestdb", { useUnifiedTopology: true, useNewUrlParser: true })
@@ -46,22 +57,22 @@ router.post('/login', (req, res) => {
 
 
 
-router.route("/register").post(function(req,res) {
-      
+router.route("/register").post( async function(req,res, next) {
+  try{
 
-  let newUser = new User();
-  newUser.userName= req.body.userName,
-  newUser.setPassword(req.body.password)
-  
+    const {userName, password, role} = req.body;
+    const hashedPassword = await hashPassword(password)
+    const newUser = User({userName, password: hashedPassword, role: role || "guest"})
+    const accessToken = jwt.sign({userId: newUser._id}, "ThisIsAnIncredibleSecret", {
+      expiresIn: "1d"
+    })
+    newUser.accessToken = accessToken
 
-
-  newUser.save( (err) =>  {
-      
-      if (err) {
-        res.send(err);
-      } else {
-        res.send(newUser);
-      }
-    });
+    await newUser.save()
+    res.json({data: newUser,
+    accessToken} 
+    )} catch(error){
+      next(error)
+    }
    
 })
