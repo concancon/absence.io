@@ -1,7 +1,6 @@
 const mongoose = require("mongoose")
+
 const uniqueValidator = require("mongoose-unique-validator")
-const crypto = require("crypto")
-var jwt = require('jsonwebtoken');
 
 const UserSchema = new mongoose.Schema({
     userName: {
@@ -14,13 +13,6 @@ const UserSchema = new mongoose.Schema({
         type: String,
         required: true
     }, 
-    role: {
-        type: String, 
-        default: "guest",
-        enum: ["guest", "owner"] 
-    },
-    
-   
     accessToken: {
         type: String
     }
