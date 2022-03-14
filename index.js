@@ -1,23 +1,20 @@
 const express = require("express")
 const jwt = require('jsonwebtoken');
-const { json } = require("express/lib/response")
 const { default: mongoose } = require("mongoose")
 const User = require("./models/User")
-const Quiz = require("./models/Quiz")
 const app = express()
-app.use(express.json())
 const router = express.Router()
-const bcrypt = require("bcrypt")
-
-
-async function hashPassword(password) {
-  return await bcrypt.hash(password, 10);
-}
+const bcrypt = require("bcrypt");
+const Quiz = require("./models/Quiz");
+const {authenticateJWT} = require("./middleware/authMiddleware")
+const cookieParser = require("cookie-parser")
+require("dotenv").config()
+app.use(express.json())
+app.use(cookieParser())
 
 async function validatePassword(plainPassword, hashedPassword) {
   return await bcrypt.compare(plainPassword, hashedPassword);
 }
-
 
 mongoose.connect("mongodb://127.0.0.1/newtestdb", { useUnifiedTopology: true, useNewUrlParser: true })
 
@@ -32,7 +29,7 @@ app.listen(3000, () => console.log("listening on 3000"))
 
 
 // User login api
-router.post('/login', async function (req, res, next) {
+app.post('/login', async  (req, res, next) =>{
 
   try {
     const { userName, password } = req.body;
@@ -40,14 +37,15 @@ router.post('/login', async function (req, res, next) {
     if (!user) return next(new Error('Username does not exist'));
     const validPassword = await validatePassword(password, user.password);
     if (!validPassword) return next(new Error('Password is not correct'))
-    const accessToken = jwt.sign({ userId: user._id }, "ThisIsAnIncredibleSecret", {
+    const accessToken = jwt.sign({ userId: user._id }, process.env.SECRET, {
       expiresIn: "1d"
     });
-    await User.findByIdAndUpdate(user._id, { accessToken })
+    res.cookie("token", accessToken, {maxAge: 1000 * 60 * 60 *24, httpOnly: true}); // should set secure to true for this scheme to work
     res.status(200).json({
       data: { userName: user.userName },
-      accessToken
     })
+
+
   } catch (error) {
     next(error);
   }
@@ -55,20 +53,14 @@ router.post('/login', async function (req, res, next) {
 
 });
 
-router.route("/register").post(async function (req, res, next) {
+app.post("/register", async  (req, res, next) => {
   try {
 
     const { userName, password} = req.body
-    const hashedPassword = await hashPassword(password)
-    const newUser = new User({ userName, password: hashedPassword})
-    const accessToken = jwt.sign({ userId: newUser._id }, "ThisIsAnIncredibleSecret", {
-      expiresIn: "1d"
-    })
-    newUser.accessToken = accessToken
-
+    const newUser = new User({ userName, password: password})
     await newUser.save()
-    
-    res.send( "new user was created" )
+
+    res.json(newUser)
     
   } catch (error) {
     next(error)
@@ -76,25 +68,39 @@ router.route("/register").post(async function (req, res, next) {
 })
 
 
-router.route("/createQuiz").post(async (req, res, next)=>{
+app.post("/createQuiz",  authenticateJWT, async (req, res, next)=>{
 try{
 
-const createdBy = new User({
-  _id: new mongoose.Types.ObjectId()
-})
-
-
-  //const {title, question, answer, createdBy} = req.body
+  const createdBy = res.locals.user._id; 
 
   if(!createdBy){
     res.send("you are not logged in")
   }
-  res.send(createdBy)
+ else{
+  const {title, question, answer} = req.body
+  const newQuiz = new Quiz({title, question, answer, createdBy})
+  
+  await newQuiz.save();
 
+  res.json({title, question, answer, createdBy})
+ }
 
 }catch(error){
   next(error)
 }
 
+})
 
+app.get("/myQuizes", authenticateJWT, async (req,res) =>{
+
+ const userId = res.locals.user._id
+
+ if(!userId){
+   res.send("you are not logged in")
+ }
+
+ const userQuizes = await Quiz.find({createdBy: userId}).lean().exec(function (err, quizes) {
+  return res.json(quizes)
+ }
+ )
 })

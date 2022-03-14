@@ -1,4 +1,5 @@
 const mongoose = require("mongoose")
+const bcrypt = require("bcrypt")
 
 const uniqueValidator = require("mongoose-unique-validator")
 
@@ -12,13 +13,16 @@ const UserSchema = new mongoose.Schema({
     password: {
         type: String,
         required: true
-    }, 
-    accessToken: {
-        type: String
     }
-
 }, {timestamps: true})
 
+
+UserSchema.pre("save", async function (next) {
+  
+    const salt = await bcrypt.genSalt();
+    this.password = await bcrypt.hash(this.password, salt);
+    next();
+})
 
 
 UserSchema.plugin(uniqueValidator, {message: "That username is already taken"})
