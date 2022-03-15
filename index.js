@@ -9,10 +9,13 @@ const cookieParser = require('cookie-parser')
 const User = require('./models/User')
 const Quiz = require('./models/Quiz')
 const { authenticateJWT } = require('./middleware/authMiddleware')
+const quizRouter = require('./routes/quiz')
+
 require('dotenv').config()
 
 app.use(express.json())
 app.use(cookieParser())
+app.use('/quiz', quizRouter)
 
 async function validatePassword (plainPassword, hashedPassword) {
   return await bcrypt.compare(plainPassword, hashedPassword)
@@ -80,7 +83,7 @@ app.post('/createQuiz', authenticateJWT, async (req, res, next) => {
       await newQuiz.save()
 
       res.json({
-        title, question, answer, createdBy
+        newQuiz
       })
     }
   } catch (error) {
@@ -90,13 +93,15 @@ app.post('/createQuiz', authenticateJWT, async (req, res, next) => {
 
 app.get('/myQuizes', authenticateJWT, async (req, res) => {
   const userId = res.locals.user._id
-
-  if (!userId) {
-    res.send('you are not logged in')
-  }
-
   await Quiz.find({ createdBy: userId }).lean().exec((err, quizes) => {
     if (err) { res.send(err) }
     res.json(quizes)
+  })
+})
+
+app.get('/quizes/:quizId', authenticateJWT, async (req, res) => {
+  await Quiz.find({ _id: req.params.quizId }).lean().exec((err, quiz) => {
+    if (err) { res.send(err) }
+    res.json(quiz)
   })
 })
