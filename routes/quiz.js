@@ -5,8 +5,8 @@ router.get('/', (req, res) => {
 }) // get /quiz
 
 // this route is equivalent to "/cart" post method
-router.post('/', (req, res) => { })// logic for adding item to cart});// this route is equivalent to "/cart/:id" delete method
+router.post('/', (req, res) => { })// logic for adding quiz});// this route is equivalent to "/cart/:id" delete method
 
-router.delete('/:id', (req, res) => {}) // logic for deleting item from cart});module.exports = router
+router.delete('/:id', (req, res) => {}) // logic for deleting quiz});module.exports = router
 
 module.exports = router

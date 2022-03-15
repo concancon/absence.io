@@ -15,6 +15,7 @@ require('dotenv').config()
 
 app.use(express.json())
 app.use(cookieParser())
+app.use('/loggedInOnly', authenticateJWT)
 app.use('/quiz', quizRouter)
 
 async function validatePassword (plainPassword, hashedPassword) {
@@ -68,7 +69,7 @@ app.post('/register', async (req, res, next) => {
   }
 })
 
-app.post('/createQuiz', authenticateJWT, async (req, res, next) => {
+app.post('/loggedInOnly/createQuiz', async (req, res, next) => {
   try {
     const createdBy = res.locals.user._id
 
@@ -91,7 +92,7 @@ app.post('/createQuiz', authenticateJWT, async (req, res, next) => {
   }
 })
 
-app.get('/myQuizes', authenticateJWT, async (req, res) => {
+app.get('/loggedInOnly/myQuizes', async (req, res) => {
   const userId = res.locals.user._id
   await Quiz.find({ createdBy: userId }).lean().exec((err, quizes) => {
     if (err) { res.send(err) }
@@ -99,7 +100,7 @@ app.get('/myQuizes', authenticateJWT, async (req, res) => {
   })
 })
 
-app.get('/quizes/:quizId', authenticateJWT, async (req, res) => {
+app.get('/loggedInOnly/quizes/:quizId', async (req, res) => {
   await Quiz.find({ _id: req.params.quizId }).lean().exec((err, quiz) => {
     if (err) { res.send(err) }
     res.json(quiz)
