@@ -1,12 +1,14 @@
 const router = require('express').Router()// this route is equivalent to "/cart" get method
+const quizController = require('../controllers/quizController')
 
 router.get('/', (req, res) => {
   res.send('you reached /quiz')
-}) // get /quiz
+})
 
-// this route is equivalent to "/cart" post method
-router.post('/', (req, res) => { })// logic for adding quiz});// this route is equivalent to "/cart/:id" delete method
+router.post('/', quizController.quiz_create_post)
 
-router.delete('/:id', (req, res) => {}) // logic for deleting quiz});module.exports = router
+router.post('/:id', (req, res, next) => {
+  quizController.quiz_update_post(req, res, next, req.params.id)
+})
 
 module.exports = router

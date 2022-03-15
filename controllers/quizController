@@ -1,0 +1,63 @@
+const Quiz = require('../models/Quiz')
+
+// Display list of all quizs.
+exports.quiz_list = function (req, res) {
+  res.send('NOT IMPLEMENTED: quiz list')
+}
+
+// Display detail page for a specific quiz.
+exports.quiz_detail = function (req, res) {
+  res.send('NOT IMPLEMENTED: quiz detail: ' + req.params.id)
+}
+
+// Display quiz create form on GET.
+exports.quiz_get = function (req, res) {
+  res.send('NOT IMPLEMENTED: quiz create GET')
+}
+
+// Handle quiz create on POST.
+exports.quiz_create_post = async (req, res, next) => {
+  try {
+    const createdBy = res.locals.user._id
+
+    const { title, question, answer } = req.body
+    const newQuiz = new Quiz({
+      title, question, answer, createdBy
+    })
+
+    await newQuiz.save()
+
+    res.json({
+      newQuiz
+    })
+  } catch (error) {
+    next(error)
+  }
+}
+
+// Display quiz delete form on GET.
+exports.quiz_delete_get = function (req, res) {
+  res.send('NOT IMPLEMENTED: quiz delete GET')
+}
+
+// Handle quiz delete on POST.
+exports.quiz_delete_post = function (req, res) {
+  res.send('NOT IMPLEMENTED: quiz delete POST')
+}
+
+// Handle quiz update on POST.
+exports.quiz_update_post = async function (req, res, next, quizId) {
+  try {
+    const createdBy = res.locals.user._id
+
+    // check if the logged in user is the owner of the quiz
+    const quiz = await Quiz.findById(quizId)
+    if (quiz.createdBy.equals(createdBy)) {
+      res.send('you can indeed edit')
+    } else {
+      res.send('sorry you cant edit \n' + quiz.createdBy + '\n' + createdBy)
+    }
+  } catch (error) {
+    next(error)
+  }
+}

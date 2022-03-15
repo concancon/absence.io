@@ -16,7 +16,7 @@ require('dotenv').config()
 app.use(express.json())
 app.use(cookieParser())
 app.use('/loggedInOnly', authenticateJWT)
-app.use('/quiz', quizRouter)
+app.use('/loggedInOnly/quiz', quizRouter)
 
 async function validatePassword (plainPassword, hashedPassword) {
   return await bcrypt.compare(plainPassword, hashedPassword)
@@ -64,29 +64,6 @@ app.post('/register', async (req, res, next) => {
     await newUser.save()
 
     res.json(newUser)
-  } catch (error) {
-    next(error)
-  }
-})
-
-app.post('/loggedInOnly/createQuiz', async (req, res, next) => {
-  try {
-    const createdBy = res.locals.user._id
-
-    if (!createdBy) {
-      res.send('you are not logged in')
-    } else {
-      const { title, question, answer } = req.body
-      const newQuiz = new Quiz({
-        title, question, answer, createdBy
-      })
-
-      await newQuiz.save()
-
-      res.json({
-        newQuiz
-      })
-    }
   } catch (error) {
     next(error)
   }
