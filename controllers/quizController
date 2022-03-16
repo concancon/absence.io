@@ -27,14 +27,18 @@ exports.quiz_create_post = async (req, res, next) => {
   try {
     const createdBy = res.locals.user._id
 
-    const { title, quizEntry } = req.body
-
-    const newQuizEntry = new QuizEntryModel({ question: quizEntry.question, answer: quizEntry.answer })
+    const { title, quizEntries } = req.body
 
     const newQuiz = new Quiz({
       title: title, createdBy: createdBy
     })
-    newQuiz.quizEntries.push(newQuizEntry)
+    if (Object.values(quizEntries).length > 0) {
+      newQuiz.quizEntries = [] // we must initialize the array as we have set it to undefined in schema
+    }
+    for (const key in quizEntries) {
+      const newQuizEntry = new QuizEntryModel({ question: quizEntries[key].question, answer: quizEntries[key].answer })
+      newQuiz.quizEntries.push(newQuizEntry)
+    }
 
     await newQuiz.save()
     res.json(newQuiz)
