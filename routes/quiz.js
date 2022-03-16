@@ -1,9 +1,7 @@
 const router = require('express').Router()// this route is equivalent to "/cart" get method
 const quizController = require('../controllers/quizController')
 
-router.get('/', (req, res) => {
-  res.send('you reached /quiz')
-})
+router.get('/', quizController.quiz_list)
 
 router.post('/', quizController.quiz_create_post)
 

@@ -1,8 +1,15 @@
 const Quiz = require('../models/Quiz')
+const QuizEntry = require('../models/QuizEntry')
 
-// Display list of all quizs.
-exports.quiz_list = function (req, res) {
-  res.send('NOT IMPLEMENTED: quiz list')
+// Display list of all quizes for currently logged in user.
+exports.quiz_list = async (req, res, next) => {
+  try {
+    const userId = res.locals.user._id
+    await Quiz.find({ createdBy: userId }).lean().exec((err, quizes) => {
+      if (err) { next(err) }
+      res.json(quizes)
+    })
+  } catch (error) { next(error) }
 }
 
 // Display detail page for a specific quiz.
@@ -20,12 +27,18 @@ exports.quiz_create_post = async (req, res, next) => {
   try {
     const createdBy = res.locals.user._id
 
-    const { title, question, answer } = req.body
-    const newQuiz = new Quiz({
-      title, question, answer, createdBy
-    })
+    const { title, quizEntry } = req.body
 
-    await newQuiz.save()
+    const newQuizEntry = new QuizEntry(quizEntry)
+
+    const newQuiz = new Quiz({
+      title: title, quizEntry: newQuizEntry, createdBy: createdBy
+    })
+    try {
+      await newQuiz.save()
+    } catch (error) {
+      console.log(error)
+    }
 
     res.json({
       newQuiz
@@ -49,13 +62,26 @@ exports.quiz_delete_post = function (req, res) {
 exports.quiz_update_post = async function (req, res, next, quizId) {
   try {
     const createdBy = res.locals.user._id
-
     // check if the logged in user is the owner of the quiz
     const quiz = await Quiz.findById(quizId)
-    if (quiz.createdBy.equals(createdBy)) {
-      res.send('you can indeed edit')
+    if (quiz) {
+      if (quiz.createdBy.equals(createdBy)) {
+        // get the new question from the body
+
+        const { question, answer } = req.body
+        const newEntry = new QuizEntry({ question, answer })
+        quiz.quizEntry.push(newEntry)
+        try {
+          await quiz.save()
+        } catch (error) {
+          console.log(error)
+        }
+        res.json(quiz)
+      } else {
+        res.send('sorry you cant edit \n')
+      }
     } else {
-      res.send('sorry you cant edit \n' + quiz.createdBy + '\n' + createdBy)
+      res.send('that quiz id was not found in the database')
     }
   } catch (error) {
     next(error)
