@@ -29,12 +29,12 @@ exports.quiz_create_post = async (req, res, next) => {
 
     const { title, quizEntry } = req.body
 
-    const newQuizEntry = new QuizEntryModel({ question: quizEntry.question, answer: quizEntry.answer })
+    // const newQuizEntry = new QuizEntryModel({ question: quizEntry.question, answer: quizEntry.answer })
 
     const newQuiz = new Quiz({
       title: title, createdBy: createdBy
     })
-    newQuiz.quizEntries.push(newQuizEntry)
+    // newQuiz.quizEntries.push(newQuizEntry)
 
     await newQuiz.save()
     res.json(newQuiz)

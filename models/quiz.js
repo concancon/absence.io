@@ -7,7 +7,7 @@ const QuizSchema = new mongoose.Schema({
     type: String,
     required: true
   },
-  quizEntries: [QuizEntrySchema],
+  quizEntries: { type: [QuizEntrySchema], required: true, default: undefined },
   createdBy: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User'
