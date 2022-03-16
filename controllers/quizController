@@ -29,20 +29,15 @@ exports.quiz_create_post = async (req, res, next) => {
 
     const { title, quizEntry } = req.body
 
-    const newQuizEntry = new QuizEntry(quizEntry)
+    const newQuizEntry = new QuizEntry({ question: quizEntry.question, answer: quizEntry.answer })
 
     const newQuiz = new Quiz({
-      title: title, quizEntry: newQuizEntry, createdBy: createdBy
+      title: title, createdBy: createdBy
     })
-    try {
-      await newQuiz.save()
-    } catch (error) {
-      console.log(error)
-    }
+    newQuiz.quizEntries.push(newQuizEntry)
 
-    res.json({
-      newQuiz
-    })
+    await newQuiz.save()
+    res.json(newQuiz)
   } catch (error) {
     next(error)
   }
@@ -66,19 +61,19 @@ exports.quiz_update_post = async function (req, res, next, quizId) {
     const quiz = await Quiz.findById(quizId)
     if (quiz) {
       if (quiz.createdBy.equals(createdBy)) {
-        // get the new question from the body
-
         const { question, answer } = req.body
         const newEntry = new QuizEntry({ question, answer })
-        quiz.quizEntry.push(newEntry)
-        try {
-          await quiz.save()
-        } catch (error) {
-          console.log(error)
+        const validationResult = newEntry.validateSync()
+        if (validationResult) {
+          return next(' a quiz entry corresponds of one question and one answer. You failed to provide one of them')
         }
+
+        quiz.quizEntries.push(newEntry)
+
+        await quiz.save()
         res.json(quiz)
       } else {
-        res.send('sorry you cant edit \n')
+        res.send('sorry you cant edit this quiz. Because it\'s not your quiz \n')
       }
     } else {
       res.send('that quiz id was not found in the database')

@@ -6,7 +6,7 @@ const QuizSchema = new mongoose.Schema({
     type: String,
     required: true
   },
-  quizEntries: [{ type: [String], ref: 'QuizEntrySchema', required: true }],
+  quizEntries: [{ type: Object, ref: 'QuizEntrySchema', required: true, default: undefined }],
   createdBy: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User'
