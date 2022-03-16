@@ -1,4 +1,5 @@
 const mongoose = require('mongoose')
+const { QuizEntrySchema } = require('./quizEntry')
 
 const QuizSchema = new mongoose.Schema({
 
@@ -6,7 +7,7 @@ const QuizSchema = new mongoose.Schema({
     type: String,
     required: true
   },
-  quizEntries: [{ type: Object, ref: 'QuizEntrySchema', required: true, default: undefined }],
+  quizEntries: [QuizEntrySchema],
   createdBy: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User'

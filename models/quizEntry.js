@@ -1,6 +1,5 @@
 const mongoose = require('mongoose')
 
-
 const QuizEntrySchema = new mongoose.Schema({
   question: {
     type: String,
@@ -12,6 +11,5 @@ const QuizEntrySchema = new mongoose.Schema({
   }
 
 })
-
-
-module.exports = mongoose.model('QuizEntry', QuizEntrySchema)
+const QuizEntryModel = mongoose.model('QuizEntryModel', QuizEntrySchema)
+module.exports = { QuizEntryModel, QuizEntrySchema }

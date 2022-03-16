@@ -1,5 +1,5 @@
 const Quiz = require('../models/Quiz')
-const QuizEntry = require('../models/QuizEntry')
+const { QuizEntryModel } = require('../models/quizEntry')
 
 // Display list of all quizes for currently logged in user.
 exports.quiz_list = async (req, res, next) => {
@@ -29,7 +29,7 @@ exports.quiz_create_post = async (req, res, next) => {
 
     const { title, quizEntry } = req.body
 
-    const newQuizEntry = new QuizEntry({ question: quizEntry.question, answer: quizEntry.answer })
+    const newQuizEntry = new QuizEntryModel({ question: quizEntry.question, answer: quizEntry.answer })
 
     const newQuiz = new Quiz({
       title: title, createdBy: createdBy
@@ -62,7 +62,7 @@ exports.quiz_update_post = async function (req, res, next, quizId) {
     if (quiz) {
       if (quiz.createdBy.equals(createdBy)) {
         const { question, answer } = req.body
-        const newEntry = new QuizEntry({ question, answer })
+        const newEntry = new QuizEntryModel({ question, answer })
         const validationResult = newEntry.validateSync()
         if (validationResult) {
           return next(' a quiz entry corresponds of one question and one answer. You failed to provide one of them')
