@@ -1,18 +1,11 @@
 const express = require('express')
-
 const { default: mongoose } = require('mongoose')
-
 const app = express()
-const router = express.Router()
-
 const cookieParser = require('cookie-parser')
-
 const { authenticateJWT } = require('./middleware/authMiddleware')
 const quizRouter = require('./routes/quiz')
 const accountRouter = require('./routes/account')
-
 require('dotenv').config()
-
 app.use(express.json())
 app.use(cookieParser())
 app.use('/account', accountRouter)
@@ -27,5 +20,4 @@ connection.once('open', () => {
   console.log('MongoDB database connection established successfully')
 })
 
-app.use('/', router)
 app.listen(3000, () => console.log('listening on 3000'))
