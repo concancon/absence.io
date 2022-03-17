@@ -34,9 +34,16 @@ exports.account_login = async (req, res, next) => {
     res.status(200).json({
       data: { userName: user.userName }
     })
-    return null
   } catch (error) {
     next(error)
-    return null
+  }
+}
+
+exports.account_logout = async (req, res, next) => {
+  try {
+    res.cookie('token', '', { maxAge: 1 })
+    res.send('you are now logged out')
+  } catch (error) {
+    next(error)
   }
 }
