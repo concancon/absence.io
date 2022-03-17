@@ -9,6 +9,7 @@ require('dotenv').config()
 app.use(express.json())
 app.use(cookieParser())
 app.use('/account', accountRouter)
+app.use('/loggedInOnly/account', authenticateJWT, accountRouter)
 app.use('/loggedInOnly', authenticateJWT)
 app.use('/loggedInOnly/quiz', quizRouter)
 

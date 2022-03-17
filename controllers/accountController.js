@@ -39,7 +39,7 @@ exports.account_login = async (req, res, next) => {
   }
 }
 
-exports.account_logout = async (req, res, next) => {
+exports.account_logout = async (_req, res, next) => {
   try {
     res.cookie('token', '', { maxAge: 1 })
     res.send('you are now logged out')
