@@ -76,10 +76,3 @@ app.get('/loggedInOnly/myQuizes', async (req, res) => {
     res.json(quizes)
   })
 })
-
-app.get('/loggedInOnly/quizes/:quizId', async (req, res) => {
-  await Quiz.find({ _id: req.params.quizId }).lean().exec((err, quiz) => {
-    if (err) { res.send(err) }
-    res.json(quiz)
-  })
-})

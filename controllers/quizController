@@ -2,7 +2,7 @@ const Quiz = require('../models/Quiz')
 const { QuizEntryModel } = require('../models/quizEntry')
 
 // Display list of all quizes for currently logged in user.
-exports.quiz_list = async (req, res, next) => {
+exports.quiz_list = async (_req, res, next) => {
   try {
     const userId = res.locals.user._id
     await Quiz.find({ createdBy: userId }).lean().exec((err, quizes) => {
@@ -13,8 +13,11 @@ exports.quiz_list = async (req, res, next) => {
 }
 
 // Display detail page for a specific quiz.
-exports.quiz_detail = function (req, res) {
-  res.send('NOT IMPLEMENTED: quiz detail: ' + req.params.id)
+exports.quiz_detail = async (req, res, next, quizId) => {
+  await Quiz.find({ _id: quizId }).lean().exec((err, quiz) => {
+    if (err) { next(err) }
+    res.json(quiz)
+  })
 }
 
 // Display quiz create form on GET.
