@@ -13,16 +13,11 @@ exports.quiz_list = async (_req, res, next) => {
 }
 
 // Display detail page for a specific quiz.
-exports.quiz_detail = async (req, res, next, quizId) => {
+exports.quiz_detail = async (_req, res, next, quizId) => {
   await Quiz.find({ _id: quizId }).lean().exec((err, quiz) => {
     if (err) { next(err) }
     res.json(quiz)
   })
-}
-
-// Display quiz create form on GET.
-exports.quiz_get = function (req, res) {
-  res.send('NOT IMPLEMENTED: quiz create GET')
 }
 
 // Handle quiz create on POST.
@@ -48,16 +43,6 @@ exports.quiz_create_post = async (req, res, next) => {
   } catch (error) {
     next(error)
   }
-}
-
-// Display quiz delete form on GET.
-exports.quiz_delete_get = function (req, res) {
-  res.send('NOT IMPLEMENTED: quiz delete GET')
-}
-
-// Handle quiz delete on POST.
-exports.quiz_delete_post = function (req, res) {
-  res.send('NOT IMPLEMENTED: quiz delete POST')
 }
 
 // Handle quiz update on POST.
@@ -87,5 +72,14 @@ exports.quiz_update_post = async function (req, res, next, quizId) {
     }
   } catch (error) {
     next(error)
+  }
+}
+
+// Display quiz delete form on GET.
+exports.quiz_delete_get = function (req, res, next) {
+  try {
+
+  } catch (err) {
+    next(err)
   }
 }
