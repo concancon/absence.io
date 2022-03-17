@@ -76,9 +76,19 @@ exports.quiz_update_post = async function (req, res, next, quizId) {
 }
 
 // Display quiz delete form on GET.
-exports.quiz_delete_get = function (req, res, next) {
+exports.quiz_delete_get = async (req, res, next, quizId) => {
   try {
+    const createdBy = res.locals.user._id
 
+    const quiz = await Quiz.findById(quizId)
+    if (quiz) {
+      if (quiz.createdBy.equals(createdBy)) {
+        await Quiz.findByIdAndDelete(quizId)
+        res.send('quiz deleted')
+      } else {
+        res.send('you are not the owner of that quiz and thus can\'t delete it')
+      }
+    }
   } catch (err) {
     next(err)
   }

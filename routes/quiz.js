@@ -14,7 +14,7 @@ router.post('/:id', (req, res, next) => {
 })
 
 router.delete('/:id', (req, res, next) => {
-
+  quizController.quiz_delete_get(req, res, next, req.params.id)
 })
 
 module.exports = router
