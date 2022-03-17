@@ -1,5 +1,6 @@
 const Play = require('../models/play')
 const Quiz = require('../models/Quiz')
+const User = require('../models/User')
 
 exports.play_get = async (_req, res, next, quizId) => {
   await Quiz.findById({ _id: quizId }).lean().exec((err, quiz) => {
@@ -16,7 +17,7 @@ exports.play_get = async (_req, res, next, quizId) => {
 }
 
 exports.play_post = async (req, res, next, quizId) => {
-  await Quiz.findById({ _id: quizId }).lean().exec((err, quiz) => {
+  await Quiz.findById({ _id: quizId }).lean().exec(async (err, quiz) => {
     if (err) { next(err) }
     const { playerEntries } = req.body
 
@@ -36,6 +37,16 @@ exports.play_post = async (req, res, next, quizId) => {
         points++
       }
     }
-    res.send('number you got right: ' + points)
+
+    const quizPlayer = res.locals.user._id
+    await User.findById({ _id: quizPlayer }).exec(async (err, user) => {
+      if (err) { next(err) }
+
+      const newPlay = new Play({ userName: user.userName, quizTitle: quiz.title, points: points, maxPoints: entries.length, attempts: 1 })
+      await newPlay.save().catch(err => {
+        return next(err)
+      })
+      res.json(newPlay)
+    })
   })
 }
