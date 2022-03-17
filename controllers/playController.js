@@ -18,13 +18,23 @@ exports.play_get = async (_req, res, next, quizId) => {
 exports.play_post = async (req, res, next, quizId) => {
   await Quiz.findById({ _id: quizId }).lean().exec((err, quiz) => {
     if (err) { next(err) }
-    const answers = req.body
+    const { playerEntries } = req.body
 
-    const questionsLength = quiz.quizEntries.length
-    if (answers.length !== undefined || answers.length !== questionsLength) {
+    const entries = quiz.quizEntries
+    if (playerEntries.length === undefined || playerEntries.length !== entries.length) {
       return next('your answers dont correspond to the number of questions')
     }
 
-    res.send('Ready to play')
+    let points = 0
+    // make sure the user playerEntries contain the same questions as those in the quiz
+    for (const entry in entries) {
+      // get that entry's corresponding entry in the player entries via question ref
+      const playerEntry = playerEntries.find(playerEntry => playerEntry.question === entries[entry].question)
+
+      if (playerEntry.answer === entries[entry].answer) {
+        points++
+      }
+    }
+    res.send('number you got right: ' + points)
   })
 }
