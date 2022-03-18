@@ -19,6 +19,7 @@ exports.play_get = async (_req, res, next, quizId) => {
 exports.play_post = async (req, res, next, quizId) => {
   await Quiz.findById({ _id: quizId }).lean().exec(async (err, quiz) => {
     if (err) { next(err) }
+    if (!quiz) { return next('quiz not found') }
     const { playerEntries } = req.body
 
     const entries = quiz.quizEntries
@@ -26,7 +27,7 @@ exports.play_post = async (req, res, next, quizId) => {
       return next('your answers dont correspond to the number of questions')
     }
 
-    let points = 0
+    let newPoints = 0
     // make sure the user playerEntries contain the same questions as those in the quiz
     for (const entry in entries) {
       // get that entry's corresponding entry in the player entries via question ref
@@ -34,19 +35,27 @@ exports.play_post = async (req, res, next, quizId) => {
       const playerEntry = playerEntries.find(playerEntry => playerEntry.question === entries[entry].question)
 
       if (playerEntry.answer === entries[entry].answer) {
-        points++
+        newPoints++
       }
     }
 
     const quizPlayer = res.locals.user._id
     await User.findById({ _id: quizPlayer }).exec(async (err, user) => {
       if (err) { next(err) }
+      // todo: make sure that a quiz title and a quiz player is a unique entity
 
-      const newPlay = new Play({ userName: user.userName, quizTitle: quiz.title, points: points, maxPoints: entries.length, attempts: 1 })
-      await newPlay.save().catch(err => {
-        return next(err)
-      })
-      res.json(newPlay)
+      await Play.findOne({ userName: user.userName, title: quiz.title }).exec(async (err, previousStats) => {
+        if (err) { next(err) }
+
+        previousStats.points.push(newPoints)
+        previousStats.attempts++
+        await previousStats.save().catch(err => {
+          return next(err)
+        })
+        res.json(previousStats)
+      }
+
+      )
     })
   })
 }

@@ -8,7 +8,7 @@ const PlaySchema = new mongoose.Schema({
   },
   quizTitle: { type: String, required: true },
   points: {
-    type: Number,
+    type: [Number],
     required: true
   },
   maxPoints: {
