@@ -14,6 +14,8 @@ app.use('/loggedInOnly/account', authenticateJWT, accountRouter)
 app.use('/loggedInOnly', authenticateJWT)
 app.use('/loggedInOnly/quiz', quizRouter)
 app.use('/loggedInOnly/play', playRouter)
+const https = require('https')
+const fs = require('fs')
 
 mongoose.connect('mongodb://127.0.0.1/newtestdb', { useUnifiedTopology: true, useNewUrlParser: true })
 
@@ -23,4 +25,16 @@ connection.once('open', () => {
   console.log('MongoDB database connection established successfully')
 })
 
-app.listen(3000, () => console.log('listening on 3000'))
+https
+  .createServer(
+    // Provide the private and public key to the server by reading each
+    // file's content with the readFileSync() method.
+    {
+      key: fs.readFileSync('./key.pem'),
+      cert: fs.readFileSync('./cert.pem')
+    },
+    app
+  )
+  .listen(3000, () => {
+    console.log('serever is runing at port 3000')
+  })
