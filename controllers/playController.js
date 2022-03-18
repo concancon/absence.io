@@ -2,6 +2,14 @@ const Play = require('../models/play')
 const Quiz = require('../models/Quiz')
 const User = require('../models/User')
 
+exports.play_list = async (req, res, next) => {
+  await Play.find().lean().exec((err, allPlays) => {
+    if (err) { next(err) }
+
+    res.json(allPlays)
+  })
+}
+
 exports.play_get = async (_req, res, next, quizId) => {
   await Quiz.findById({ _id: quizId }).lean().exec((err, quiz) => {
     if (err) { next(err) }
