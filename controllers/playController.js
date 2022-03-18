@@ -33,14 +33,16 @@ exports.play_post = async (req, res, next, quizId) => {
   if (quizEntries.length === undefined || quizEntries.length !== entries.length) {
     return next('your answers dont correspond to the number of questions')
   }
-  let newPoints = 0
+  const newPoints = {}
   for (const entry in entries) {
     // get that entry's corresponding entry in the player entries via question ref
     // this helps us avoid the case that the user provides the right answer to the wrong question :)
     const playerEntry = quizEntries.find(playerEntry => playerEntry.question === entries[entry].question)
 
     if (playerEntry.answer === entries[entry].answer) {
-      newPoints++
+      newPoints[entries[entry].question] = 1
+    } else {
+      newPoints[entries[entry].question] = 0
     }
   }
 
@@ -54,15 +56,20 @@ exports.play_post = async (req, res, next, quizId) => {
   await Play.findOne({ userName: user.userName, title: quiz.title }).exec(async (err, previousStats) => {
     if (err) { next(err) }
     if (!previousStats) {
-      const newStats = new Play({ userName: user.userName, quizTitle: quiz.title, maxPoints: quiz.quizEntries.length, attempts: 1 })
-      newStats.points.push(newPoints)
+      const newStats = new Play({ userName: user.userName, quizTitle: quiz.title, maxPossiblePoints: quiz.quizEntries.length, attempts: 1 })
+      for (const entry in newPoints) {
+        newStats.points.push({ question: entry, point: newPoints[entry] })
+      }
+
       await newStats.save().catch(err => {
         return next(err)
       })
       res.json(newStats)
     }
 
-    previousStats.points.push(newPoints)
+    for (const entry in newPoints) {
+      previousStats.points.push({ question: entry, point: newPoints[entry] })
+    }
     previousStats.attempts++
 
     await previousStats.save().catch(err => {

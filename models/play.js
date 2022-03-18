@@ -7,11 +7,17 @@ const PlaySchema = new mongoose.Schema({
     required: true
   },
   quizTitle: { type: String, required: true },
-  points: {
-    type: [Number],
-    required: true
-  },
-  maxPoints: {
+  points: [{
+    question: {
+      type: String,
+      required: true
+    },
+    point: {
+      type: Number,
+      required: true
+    }
+  }],
+  maxPossiblePoints: {
     type: Number,
     required: true
   },
