@@ -27,11 +27,13 @@ exports.play_post = async (req, res, next, quizId) => {
 
   const entries = quiz.quizEntries
 
+  if (!quizEntries) {
+    return next('you must define an array with key value quizEntries')
+  }
   if (quizEntries.length === undefined || quizEntries.length !== entries.length) {
     return next('your answers dont correspond to the number of questions')
   }
   let newPoints = 0
-  // make sure the user quizEntries contain the same questions as those in the quiz
   for (const entry in entries) {
     // get that entry's corresponding entry in the player entries via question ref
     // this helps us avoid the case that the user provides the right answer to the wrong question :)
@@ -48,8 +50,6 @@ exports.play_post = async (req, res, next, quizId) => {
     return next(err)
   })
   if (!user) { return next('user not found') }
-
-  // todo: make sure that a quiz title and a quiz player is a unique entity
 
   await Play.findOne({ userName: user.userName, title: quiz.title }).exec(async (err, previousStats) => {
     if (err) { next(err) }
@@ -69,7 +69,5 @@ exports.play_post = async (req, res, next, quizId) => {
       return next(err)
     })
     res.json(previousStats)
-  }
-
-  )
+  })
 }
