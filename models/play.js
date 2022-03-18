@@ -21,5 +21,6 @@ const PlaySchema = new mongoose.Schema({
   }
 
 })
+PlaySchema.index({ userName: 1, quizTitle: 1 }, { unique: true })
 
 module.exports = mongoose.model('Play', PlaySchema)
