@@ -72,7 +72,14 @@ https://localhost:3000/loggedInOnly/account/logout</br>
   https://localhost:3000/loggedInOnly/quiz/:quizId
   
  
-  
+ ### Users can view all their quizes
+ GET: <br/>
+ https://localhost:3000/loggedInOnly/quiz
+ 
+ ### Users can view a specific quiz
+ GET: <br/>
+ https://localhost:3000/loggedInOnly/:quizId
+ 
  ### Users cannot manipulate other users' quiz templates.
     
    1. register two users as described above
