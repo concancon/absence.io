@@ -59,9 +59,13 @@ exports.quiz_update_post = async function (req, res, next, quizId) {
         if (validationResult) {
           return next(' a quiz entry corresponds of one question and one answer. You failed to provide one of them')
         }
-
-        quiz.quizEntries.push(newEntry)
-
+        // if a question entry exists with the key of newEntry replace it with this one
+        const indexOfDuplicateEntry = quiz.quizEntries.findIndex(entry => entry.question === question)
+        if (indexOfDuplicateEntry !== -1) {
+          quiz.quizEntries[indexOfDuplicateEntry] = { question: question, answer: answer }
+        } else {
+          quiz.quizEntries.push(newEntry)
+        }
         await quiz.save()
         res.json(quiz)
       } else {
