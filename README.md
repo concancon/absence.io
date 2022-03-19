@@ -59,6 +59,15 @@ https://localhost:3000/loggedInOnly/account/logout</br>
   ~~~
     
  ### Users can manipulate their own quiz 
+  POST: <br/>
+  https://localhost:3000/loggedInOnly/quiz/:quizId
+  ~~~
+  {
+    "question" : "question to add to quiz",
+    "answer" : "answer to add to quiz" 
+  }
+  ~~~
+  
   DELETE: <br/>
   https://localhost:3000/loggedInOnly/quiz/:quizId
   
