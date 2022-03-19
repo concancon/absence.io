@@ -86,7 +86,7 @@ exports.quiz_delete_get = async (req, res, next, quizId) => {
         await Quiz.findByIdAndDelete(quizId)
         res.send('quiz deleted')
       } else {
-        res.send('you are not the owner of that quiz and thus can\'t delete it')
+        next('you are not the owner of that quiz and thus can\'t delete it')
       }
     } else {
       next('that quiz doesnt exist')
