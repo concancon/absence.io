@@ -88,6 +88,8 @@ exports.quiz_delete_get = async (req, res, next, quizId) => {
       } else {
         res.send('you are not the owner of that quiz and thus can\'t delete it')
       }
+    } else {
+      next('that quiz doesnt exist')
     }
   } catch (err) {
     next(err)
