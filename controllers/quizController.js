@@ -65,10 +65,10 @@ exports.quiz_update_post = async function (req, res, next, quizId) {
         await quiz.save()
         res.json(quiz)
       } else {
-        res.send('sorry you cant edit this quiz. Because it\'s not your quiz \n')
+        next('sorry you cant edit this quiz. Because it\'s not your quiz \n')
       }
     } else {
-      res.send('that quiz id was not found in the database')
+      next('that quiz id was not found in the database')
     }
   } catch (error) {
     next(error)
