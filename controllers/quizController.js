@@ -19,7 +19,12 @@ exports.quiz_detail = async (_req, res, next, quizId) => {
     res.json(quiz)
   })
 }
-
+function validateQuizEntry (newQuizEntry, next) {
+  const validationResult = newQuizEntry.validateSync()
+  if (validationResult) {
+    return next(' a quiz entry corresponds of one question and one answer. You failed to provide one of them')
+  }
+}
 // Handle quiz create on POST.
 exports.quiz_create_post = async (req, res, next) => {
   try {
@@ -28,9 +33,14 @@ exports.quiz_create_post = async (req, res, next) => {
     const { title, quizEntries } = req.body
 
     // first check if quizEntries has any duplicates
-    const questionsToCheck = Object.keys(quizEntries)
-    if (questionsToCheck.length === new Set(questionsToCheck).size) {
-      return next('there are dupicate questions in your request, please try again')
+    const justQuestions = []
+    for (const entry of quizEntries) {
+      justQuestions.push(entry.question)
+    }
+
+    const set = new Set(justQuestions)
+    if (justQuestions.length !== set.size) {
+      return next('your quiz format is wrong, please try again')
     }
 
     const newQuiz = new Quiz({
@@ -41,6 +51,7 @@ exports.quiz_create_post = async (req, res, next) => {
     }
     for (const key in quizEntries) {
       const newQuizEntry = new QuizEntryModel({ question: quizEntries[key].question, answer: quizEntries[key].answer })
+      validateQuizEntry(newQuizEntry, next)
       newQuiz.quizEntries.push(newQuizEntry)
     }
 
