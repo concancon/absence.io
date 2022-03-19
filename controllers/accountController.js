@@ -30,7 +30,7 @@ exports.account_login = async (req, res, next) => {
     const accessToken = jwt.sign({ userId: user._id }, process.env.SECRET, {
       expiresIn: '1d'
     })
-    res.cookie('token', accessToken, { maxAge: 1000 * 60 * 60 * 24, httpOnly: true }) // should set secure to true for this scheme to work
+    res.cookie('token', accessToken, { maxAge: 1000 * 60 * 60 * 24, httpOnly: true, secure: true })
     res.status(200).json({
       data: { userName: user.userName }
     })
