@@ -1,4 +1,4 @@
-const router = require('express').Router()// this route is equivalent to "/cart" get method
+const router = require('express').Router()
 const accountController = require('../controllers/accountController')
 
 router.post('/register', accountController.account_create_user)
