@@ -27,6 +27,12 @@ exports.quiz_create_post = async (req, res, next) => {
 
     const { title, quizEntries } = req.body
 
+    // first check if quizEntries has any duplicates
+    const questionsToCheck = Object.keys(quizEntries)
+    if (questionsToCheck.length === new Set(questionsToCheck).size) {
+      return next('there are dupicate questions in your request, please try again')
+    }
+
     const newQuiz = new Quiz({
       title: title, createdBy: createdBy
     })
