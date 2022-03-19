@@ -13,6 +13,7 @@ exports.play_list = async (req, res, next) => {
 exports.play_get = async (_req, res, next, quizId) => {
   await Quiz.findById({ _id: quizId }).lean().exec((err, quiz) => {
     if (err) { next(err) }
+    if (!quiz) { return next('quiz not found') }
     const questions = []
     const entries = quiz.quizEntries
     for (const key in entries) {
