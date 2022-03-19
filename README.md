@@ -18,6 +18,19 @@ The challenge is to create a small API for a quiz app where users can create and
    ~~~
   <br/>
   
+  ### Users can log in: 
+   POST:<br/>
+    https://localhost:3000/account/login<br/>
+    <br/>
+    request.body: <br/>
+   ~~~ 
+   {
+    "userName" : "I'm a username",
+    "password" : "I'm a password"
+   }  
+   ~~~
+  <br/>
+  
 ### Users can log out
 GET:</br>
 https://localhost:3000/loggedInOnly/account/logout</br>
